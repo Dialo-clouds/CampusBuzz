@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres.yglzgrchxbsfxewiqtfi:Nasir-Ahmad-2008@aws-1-eu-north-1.pooler.supabase.com:5432/postgres"
+}
+
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("STUDENT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  profile         Profile?
+  enrollments     Enrollment[]
+  reviews         Review[]
+  sentMessages    Message[] @relation("sentMessages")
+  receivedMessages Message[] @relation("receivedMessages")
+  submissions     Submission[]
+  notifications   Notification[]
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  avatar    String?
+  bio       String?
+  studentId String?
+  course    String?
+  year      Int?
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  code        String   @unique
+  credits     Int
+  instructor  String
+  capacity    Int      @default(30)
+  enrolled    Int      @default(0)
+  price       Float?
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  enrollments Enrollment[]
+  reviews     Review[]
+  assignments Assignment[]
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  status     String   @default("ACTIVE")
+  grade      String?
+  progress   Int      @default(0)
+  enrolledAt DateTime @default(now())
+  completedAt DateTime?
+  
+  @@unique([userId, courseId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, courseId])
+}
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  createdAt  DateTime @default(now()) // Add this line
+  read       Boolean  @default(false)
+  senderId   String
+  sender     User     @relation("sentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User     @relation("receivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  dueDate     DateTime
+  totalPoints Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  submissions Submission[]
+}
+
+model Submission {
+  id           String   @id @default(cuid())
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content      String?
+  fileUrl      String?
+  grade        Int?
+  feedback     String?
+  submittedAt  DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+}
