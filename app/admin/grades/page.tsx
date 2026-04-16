@@ -48,7 +48,7 @@ export default function AdminGradesPage() {
       const data = await res.json();
       setSubmissions(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Failed:", error);
+      console.error("Failed to fetch submissions:", error);
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export default function AdminGradesPage() {
       });
       
       if (res.ok) {
-        alert("Grade saved!");
+        alert("Grade saved successfully!");
         fetchSubmissions();
       } else {
         alert("Failed to save grade");
@@ -98,10 +98,9 @@ export default function AdminGradesPage() {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-white mb-8">Grade Submissions</h1>
 
-        {/* Pending Submissions */}
         {pendingSubmissions.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-4">📝 Pending ({pendingSubmissions.length})</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Pending ({pendingSubmissions.length})</h2>
             <div className="space-y-6">
               {pendingSubmissions.map((sub) => (
                 <div key={sub.id} className="bg-white/5 rounded-2xl p-6 border border-white/10">
@@ -109,8 +108,12 @@ export default function AdminGradesPage() {
                     <div>
                       <h3 className="text-xl font-semibold text-white">{sub.assignment.title}</h3>
                       <p className="text-purple-400">{sub.assignment.course.title}</p>
-                      <p className="text-white/60 text-sm mt-1">Student: {sub.user.name || sub.user.email}</p>
-                      <p className="text-white/60 text-sm">Submitted: {new Date(sub.submittedAt).toLocaleString()}</p>
+                      <p className="text-white/60 text-sm mt-1">
+                        Student: {sub.user.name || sub.user.email}
+                      </p>
+                      <p className="text-white/60 text-sm">
+                        Submitted: {new Date(sub.submittedAt).toLocaleString()}
+                      </p>
                     </div>
                   </div>
                   
@@ -123,14 +126,16 @@ export default function AdminGradesPage() {
                         rel="noopener noreferrer"
                         className="text-blue-400 text-sm hover:underline inline-block mt-2"
                       >
-                        📎 View Attached File
+                        View Attached File
                       </a>
                     )}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-white/60 text-sm mb-1">Grade (out of {sub.assignment.totalPoints})</label>
+                      <label className="block text-white/60 text-sm mb-1">
+                        Grade (out of {sub.assignment.totalPoints})
+                      </label>
                       <input
                         type="number"
                         id={`grade-${sub.id}`}
@@ -162,7 +167,7 @@ export default function AdminGradesPage() {
                       }
                     }}
                     disabled={saving === sub.id}
-                    className="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg font-semibold"
+                    className="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 rounded-lg font-semibold disabled:opacity-50"
                   >
                     {saving === sub.id ? "Saving..." : "Save Grade"}
                   </button>
@@ -172,10 +177,9 @@ export default function AdminGradesPage() {
           </div>
         )}
 
-        {/* Graded Submissions */}
         {gradedSubmissions.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold text-white mb-4">✅ Graded ({gradedSubmissions.length})</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">Graded ({gradedSubmissions.length})</h2>
             <div className="space-y-4">
               {gradedSubmissions.map((sub) => {
                 const percentage = Math.round((sub.grade! / sub.assignment.totalPoints) * 100);
@@ -185,17 +189,21 @@ export default function AdminGradesPage() {
                       <div>
                         <h3 className="text-xl font-semibold text-white">{sub.assignment.title}</h3>
                         <p className="text-purple-400">{sub.assignment.course.title}</p>
-                        <p className="text-white/60 text-sm mt-1">Student: {sub.user.name || sub.user.email}</p>
+                        <p className="text-white/60 text-sm mt-1">
+                          Student: {sub.user.name || sub.user.email}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-emerald-400 font-semibold">{sub.grade}/{sub.assignment.totalPoints}</span>
+                        <span className="text-emerald-400 font-semibold">
+                          {sub.grade}/{sub.assignment.totalPoints}
+                        </span>
                         <p className="text-2xl font-bold text-emerald-400">{percentage}%</p>
                       </div>
                     </div>
                     {sub.feedback && (
                       <div className="mt-3 p-3 bg-white/5 rounded-lg">
                         <p className="text-white/40 text-xs">Feedback:</p>
-                        <p className="text-white/80 text-sm">"{sub.feedback}"</p>
+                        <p className="text-white/80 text-sm">&quot;{sub.feedback}&quot;</p>
                       </div>
                     )}
                   </div>
